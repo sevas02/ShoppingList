@@ -1,5 +1,7 @@
 package com.example.shoppinglist.data
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.shoppinglist.domain.ShopItem
 import com.example.shoppinglist.domain.ShopListRepo
 import kotlin.random.Random
@@ -8,7 +10,7 @@ object ShopListRepoImpl: ShopListRepo {
 
     private val _items = mutableListOf<ShopItem>()
     val items
-        get() = _items.toList()
+        get() =  MutableLiveData<List<ShopItem>>(_items)
 
     private var lastId = 0L
 
