@@ -2,6 +2,7 @@ package com.example.shoppinglist.data
 
 import com.example.shoppinglist.domain.ShopItem
 import com.example.shoppinglist.domain.ShopListRepo
+import kotlin.random.Random
 
 object ShopListRepoImpl: ShopListRepo {
 
@@ -10,6 +11,12 @@ object ShopListRepoImpl: ShopListRepo {
         get() = _items.toList()
 
     private var lastId = 0L
+
+    init {
+        for (i in 0..10){
+            addItem((ShopItem("$i", Random.nextInt(0,5), enable = false)))
+        }
+    }
 
     override fun addItem(item: ShopItem) {
         with(item){
