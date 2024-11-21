@@ -11,5 +11,4 @@ interface ShopListRepo {
     fun getShopList(): List<ShopItem>
 
     fun removeItemById(id: Long)
-
 }
