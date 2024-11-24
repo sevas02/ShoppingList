@@ -8,16 +8,25 @@ import kotlin.random.Random
 
 object ShopListRepoImpl: ShopListRepo {
 
-    private val _items = mutableListOf<ShopItem>()
+    private val _items = sortedSetOf<ShopItem>(
+        {o1, o2-> o1.id.compareTo(o2.id)})
     val items
-        get() =  MutableLiveData<List<ShopItem>>(_items)
+        get() = _items.toList()
 
     private var lastId = 0L
+    private val itemsLD = MutableLiveData<List<ShopItem>>()
 
     init {
-        for (i in 0..10){
-            addItem((ShopItem("$i", Random.nextInt(0,5), enable = false)))
+        for (i in 0..1000){
+            addItem((ShopItem("$i", Random.nextInt(0,5), enable = Random.nextBoolean())))
         }
+    }
+
+    override fun getShopList() = itemsLD
+
+    override fun getItemById(id: Long): ShopItem {
+        _items.find { it.id == id }?.let { return it } ?:
+        throw IllegalArgumentException("Error: $id is not founded")
     }
 
     override fun addItem(item: ShopItem) {
@@ -26,6 +35,7 @@ object ShopListRepoImpl: ShopListRepo {
                 id = lastId++
             _items.add(this)
         }
+        updateLD()
     }
 
     override fun editItem(item: ShopItem) {
@@ -35,14 +45,12 @@ object ShopListRepoImpl: ShopListRepo {
         }
     }
 
-    override fun getShopList() = items
-
-    override fun getItemById(id: Long): ShopItem {
-        _items.find { it.id == id }?.let { return it } ?:
-        throw IllegalArgumentException("Error: $id is not founded")
-    }
-
     override fun removeItemById(id: Long) {
         _items.removeIf { it.id == id }
+        updateLD()
+    }
+
+    private fun updateLD() {
+        itemsLD.value = items
     }
 }
