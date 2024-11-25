@@ -1,6 +1,5 @@
-package com.example.shoppinglist.presentation
+package com.example.shoppinglist.presentation.MainActivity
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.shoppinglist.data.ShopListRepoImpl
 import com.example.shoppinglist.domain.EditShopItemUseCase

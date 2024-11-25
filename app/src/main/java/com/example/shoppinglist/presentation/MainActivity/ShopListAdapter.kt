@@ -1,4 +1,4 @@
-package com.example.shoppinglist.presentation
+package com.example.shoppinglist.presentation.MainActivity
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
