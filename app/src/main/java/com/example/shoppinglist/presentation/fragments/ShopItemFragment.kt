@@ -60,7 +60,7 @@ class ShopItemFragment : Fragment() {
             throw RuntimeException("Unknown screen mode $mode")
         screenMode = mode
         if (screenMode == MODE_EDIT) {
-            if (args.containsKey(SHOP_ITEM_ID))
+            if (!args.containsKey(SHOP_ITEM_ID))
                 throw RuntimeException("Param shop item id is absent!")
             shopItemId = args.getLong(SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
         }
