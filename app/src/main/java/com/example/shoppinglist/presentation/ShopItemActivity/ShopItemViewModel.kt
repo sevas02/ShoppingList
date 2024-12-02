@@ -1,6 +1,5 @@
 package com.example.shoppinglist.presentation.ShopItemActivity
 
-import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

@@ -50,7 +50,6 @@ class ShopItemFragment : Fragment() {
         observeViewModel()
     }
 
-
     private fun parseParam() {
         val args = requireArguments()
         if (!args.containsKey(SCREEN_MODE))
