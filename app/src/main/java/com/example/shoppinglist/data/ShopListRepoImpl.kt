@@ -1,56 +1,34 @@
 package com.example.shoppinglist.data
 
+import android.app.Application
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import com.example.shoppinglist.domain.ShopItem
 import com.example.shoppinglist.domain.ShopListRepo
-import kotlin.random.Random
 
-object ShopListRepoImpl: ShopListRepo {
+class ShopListRepoImpl(application: Application): ShopListRepo {
 
-    private val _items = sortedSetOf<ShopItem>(
-        {o1, o2-> o1.id.compareTo(o2.id)})
-    val items
-        get() = _items.toList()
+    private val shopListDao = AppDatabase.getInstance(application).shopListDao()
 
-    private var lastId = 0L
-    private val itemsLD = MutableLiveData<List<ShopItem>>()
+    private val mapper = ShopListMapper()
 
-    init {
-        for (i in 0..5){
-            addItem((ShopItem("$i", Random.nextInt(0,5), enable = Random.nextBoolean())))
-        }
+    override suspend fun getItemById(id: Long): ShopItem {
+       return mapper.mapDbModelToEntity(shopListDao.getShopItem(id))
     }
 
-    override fun getShopList() = itemsLD
-
-    override fun getItemById(id: Long): ShopItem {
-        _items.find { it.id == id }?.let { return it } ?:
-        throw IllegalArgumentException("Error: $id is not founded")
+    override suspend fun addItem(item: ShopItem) {
+        shopListDao.addShopItem(mapper.mapEntityToDbModel(item))
     }
 
-    override fun addItem(item: ShopItem) {
-        with(item){
-            if (id == ShopItem.UNDEFINED_ID)
-                id = lastId++
-            _items.add(this)
-        }
-        updateLD()
+    override suspend fun editItem(item: ShopItem) {
+        shopListDao.addShopItem(mapper.mapEntityToDbModel(item))
     }
 
-    override fun editItem(item: ShopItem) {
-        _items.find { it.id == item.id }?.also {
-            removeItemById(it.id)
-            addItem(item)
-        }
+    override suspend fun removeItemById(id: Long) {
+        shopListDao.deleteShopItem(id)
     }
 
-    override fun removeItemById(id: Long) {
-        _items.removeIf { it.id == id }
-        updateLD()
-    }
-
-    private fun updateLD() {
-        itemsLD.value = items
+    override fun getShopList(): LiveData<List<ShopItem>> = shopListDao.getShopList().map {
+        mapper.mapListDbModelToListEntity(it)
     }
 }

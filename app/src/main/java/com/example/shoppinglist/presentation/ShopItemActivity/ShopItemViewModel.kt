@@ -1,17 +1,23 @@
 package com.example.shoppinglist.presentation.ShopItemActivity
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.shoppinglist.data.ShopListRepoImpl
 import com.example.shoppinglist.domain.AddShopItemUseCase
 import com.example.shoppinglist.domain.EditShopItemUseCase
 import com.example.shoppinglist.domain.GetShopItemByIdUseCase
 import com.example.shoppinglist.domain.ShopItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
-class ShopItemViewModel : ViewModel() {
+class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repo = ShopListRepoImpl
+    private val repo = ShopListRepoImpl(application)
 
     private val editShopItemUseCase = EditShopItemUseCase(repo)
     private val addShopItemUseCase = AddShopItemUseCase(repo)
@@ -40,9 +46,11 @@ class ShopItemViewModel : ViewModel() {
         val count = parseCount(inputCount)
         if (isValidateInput(name, count)) {
             _shopItem.value?.let {
-                val item = it.copy(name=name, count=count)
-                editShopItemUseCase.editItem(item)
-                _shouldCloseScreen.postValue(Unit)
+                viewModelScope.launch {
+                    val item = it.copy(name = name, count = count)
+                    editShopItemUseCase.editItem(item)
+                    _shouldCloseScreen.postValue(Unit)
+                }
             }
         }
     }
@@ -51,13 +59,17 @@ class ShopItemViewModel : ViewModel() {
         val name = parseName(inputName)
         val count = parseCount(inputCount)
         if (isValidateInput(name, count)) {
-            addShopItemUseCase.addItem(ShopItem(name = name, count = count))
-            _shouldCloseScreen.postValue(Unit)
+            viewModelScope.launch {
+                addShopItemUseCase.addItem(ShopItem(name = name, count = count))
+                _shouldCloseScreen.postValue(Unit)
+            }
         }
     }
 
     fun getShopItemById(id: Long) {
-        _shopItem.postValue(getShopItemUseCase.getItemById(id))
+        viewModelScope.launch {
+            _shopItem.postValue(getShopItemUseCase.getItemById(id))
+        }
     }
 
     private fun parseName(input: String?): String {
@@ -68,9 +80,9 @@ class ShopItemViewModel : ViewModel() {
         return input?.trim()?.toIntOrNull() ?: 0
     }
 
-    private fun isValidateInput(name: String, count: Int): Boolean{
+    private fun isValidateInput(name: String, count: Int): Boolean {
         var res = true
-        if (name.isBlank()){
+        if (name.isBlank()) {
             _errorInputName.postValue(true)
             res = false
         }
@@ -88,4 +100,5 @@ class ShopItemViewModel : ViewModel() {
     fun resetErrorInputCount() {
         _errorInputCount.postValue(false)
     }
+
 }

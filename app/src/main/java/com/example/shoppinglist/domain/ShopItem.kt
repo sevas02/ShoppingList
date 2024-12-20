@@ -7,6 +7,6 @@ data class ShopItem(
     var id: Long = UNDEFINED_ID
 ) {
     companion object {
-        const val UNDEFINED_ID = -1L
+        const val UNDEFINED_ID = 0L
     }
 }
